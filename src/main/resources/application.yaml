@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: abc-company
+  datasource:
+    url: jdbc:h2:mem:database
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
