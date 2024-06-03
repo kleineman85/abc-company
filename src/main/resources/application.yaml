@@ -1,6 +1,10 @@
 spring:
   application:
     name: abc-company
+  jpa:
+    hibernate:
+      # set ddl-auto to none to use schema.sql
+      # ddl-auto: none
   datasource:
     url: jdbc:h2:mem:database
     username: sa
