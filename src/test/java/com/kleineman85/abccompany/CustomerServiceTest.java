@@ -30,7 +30,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void givenValidRequestShouldReturnCredentials() {
+    void givenValidRequestWhenRegisteringShouldReturnCredentials() {
         // given
         Customer newCustomer = Customer.builder()
                 .name("Joel")
@@ -53,15 +53,13 @@ class CustomerServiceTest {
         verify(mockedCustomerRepository, times(1)).save(any());
 
         assertNotNull(mockedSavedCustomer.getPassword(), "password is not generated");
-        // todo validate generated IBAN
         assertNotNull(mockedSavedCustomer.getIban(), "IBAN is not generated");
-
         assertEquals(mockedSavedCustomer.getUsername(), result.username(), "username does not match");
         assertEquals(mockedSavedCustomer.getPassword(), result.password(), "password does not match");
     }
 
     @Test
-    void givenUserNameAlreadyExistsShouldThrowIllegalArgumentException() {
+    void givenUserNameAlreadyExistsWhenRegisteringShouldThrowIllegalArgumentException() {
         // given
         Customer newCustomer = Customer.builder()
                 .name("Joel")
@@ -82,8 +80,94 @@ class CustomerServiceTest {
         verify(mockedCustomerRepository, times(0)).save(any());
 
         assertEquals("Invalid username: username already exists", result.getMessage());
+    }
+
+    @Test
+    void givenValidCredentialsWhenLoggingOnShouldReturnToken() {
+        // given
+        Credentials credentials = new Credentials("kleineman85", "Password1234");
+        Customer mockedCustomer = Customer.builder()
+                .name("Joel")
+                .address("My Street 100, New York")
+                .dateOfBirth(LocalDate.of(1900, 1, 1))
+                .idDocumentNumber("Passport12345")
+                .username("kleineman85")
+                .password("Password1234")
+                .build();
+
+        when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
+
+        // when
+        String result = testObject.logon(credentials);
+
+        // then
+        assertNotNull(result);
+        assertEquals("dummyTokenReplaceWithJwt", result);
+    }
+
+    @Test
+    void givenInvalidUsernameWhenLoggingOnShouldThrowIllegalArgumentException() {
+        // given
+        Credentials credentials = new Credentials("kleineman85", "Password1234");
+
+        when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.empty());
+
+        // when
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
+
+        // then
+        verify(mockedCustomerRepository, times(1)).findByUsername(any());
+
+        assertEquals("Invalid password or username", result.getMessage());
+    }
+
+    @Test
+    void givenInvalidPasswordWhenLoggingOnShouldThrowIllegalArgumentException() {
+        // given
+        Credentials credentials = new Credentials("kleineman85", "Password4321");
+        Customer mockedCustomer = Customer.builder()
+                .name("Joel")
+                .address("My Street 100, New York")
+                .dateOfBirth(LocalDate.of(1900, 1, 1))
+                .idDocumentNumber("Passport12345")
+                .username("kleineman85")
+                .password("Password1234")
+                .build();
+
+        when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
+
+        // when
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
+
+        // then
+        verify(mockedCustomerRepository, times(1)).findByUsername(any());
+
+        assertEquals("Invalid password or username", result.getMessage());
 
     }
 
+    @Test
+    void givenCorruptedPasswordWhenLoggingOnShouldThrowRuntimeException() {
+        // given
+        Credentials credentials = new Credentials("kleineman85", "Password1234");
+        Customer mockedCustomer = Customer.builder()
+                .name("Joel")
+                .address("My Street 100, New York")
+                .dateOfBirth(LocalDate.of(1900, 1, 1))
+                .idDocumentNumber("Passport12345")
+                .username("kleineman85")
+                .password(null)
+                .build();
+
+        when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
+
+        // when
+        RuntimeException result = assertThrows(RuntimeException.class, () -> testObject.logon(credentials));
+
+        // then
+        verify(mockedCustomerRepository, times(1)).findByUsername(any());
+
+        assertEquals("Unexpected error. Should never happen", result.getMessage());
+    }
 
 }

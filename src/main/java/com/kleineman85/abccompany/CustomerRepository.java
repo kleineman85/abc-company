@@ -5,7 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface CustomerRepository extends CrudRepository<Customer, Long> {
-    Customer findById(long id);
     Optional<Customer> findByUsername(String username);
 
 }

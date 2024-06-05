@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  title: ABC Company Customer API
+  description: |
+    With the ABC Company Customer API a customer can register and logon
+  version: 1.0.0
+
+servers:
+  - url: http://localhost/api/v1
+
+# todo
+#security:
+#  - BasicAuth: []
+
+paths:
+  /register:
+    post:
+      description: Let's a new user register and returns user credentials (username and password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: Ok. Successfully registered a new user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credentials'
+        '400':
+          description: "Bad request. Invalid username: username already exist"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Invalid username: username already exist"
+        '500':
+          description: "Internal server error. An unexpected error occured, for questions contact support@company.com"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "An unexpected error occured, for questions contact support@company.com"
+  /logon:
+    post:
+      description: Let's a registered user logon and returns a authorization token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          description: Ok.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "dummyToken"
+
+components:
+#  securitySchemes:
+#    BasicAuth:
+#      type: http
+#      scheme: basic
+  schemas:
+    Customer:
+      type: object
+      #      required:
+      properties:
+        name:
+          type: string
+          example: "Anton"
+        address:
+          type: string
+          example: "My Street 100, New York"
+        dateofbirth:
+          type: string
+          format: date
+          description: "Date of birth in ISO 8601 format (YYYY-MM-DD)"
+          example: "1999-01-31"
+        iddocumentnumber:
+          type: string
+          description: ID document number
+          example: "Passport12345"
+        username:
+          type: string
+          example: "kleineman85"
+    Credentials:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "kleineman85"
+        password:
+          type: string
+          example: "todoBase64Encode"
