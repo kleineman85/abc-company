@@ -32,13 +32,7 @@ class CustomerServiceTest {
     @Test
     void givenValidRequestWhenRegisteringShouldReturnCredentials() {
         // given
-        Customer newCustomer = Customer.builder()
-                .name("Joel")
-                .address("My Street 100, New York")
-                .dateOfBirth(LocalDate.of(1900, 1, 1))
-                .idDocumentNumber("Passport12345")
-                .username("kleineman85")
-                .build();
+        Customer newCustomer = getCustomer();
         Customer mockedSavedCustomer = newCustomer;
         mockedSavedCustomer.setId(1);
 
@@ -46,7 +40,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.save(newCustomer)).thenReturn(mockedSavedCustomer);
 
         // when
-        Credentials result = testObject.registerCustomer(newCustomer);
+        Credentials result = testObject.register(newCustomer);
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -59,21 +53,15 @@ class CustomerServiceTest {
     }
 
     @Test
-    void givenUserNameAlreadyExistsWhenRegisteringShouldThrowIllegalArgumentException() {
+    void givenInvalidRequestUserNameAlreadyExistsWhenRegisteringShouldThrowIllegalArgumentException() {
         // given
-        Customer newCustomer = Customer.builder()
-                .name("Joel")
-                .address("My Street 100, New York")
-                .dateOfBirth(LocalDate.of(1900, 1, 1))
-                .idDocumentNumber("Passport12345")
-                .username("kleineman85")
-                .build();
-        Customer existingCustomer = newCustomer;
+        Customer newCustomer = getCustomer("John Doe Copy Cat", "kleineman85");
+        Customer existingCustomer = getCustomer("John Doe", "kleineman85");
 
         when(mockedCustomerRepository.findByUsername(newCustomer.getUsername())).thenReturn(Optional.of(existingCustomer));
 
         // when
-        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.registerCustomer(newCustomer));
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.register(newCustomer));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -86,14 +74,7 @@ class CustomerServiceTest {
     void givenValidCredentialsWhenLoggingOnShouldReturnToken() {
         // given
         Credentials credentials = new Credentials("kleineman85", "Password1234");
-        Customer mockedCustomer = Customer.builder()
-                .name("Joel")
-                .address("My Street 100, New York")
-                .dateOfBirth(LocalDate.of(1900, 1, 1))
-                .idDocumentNumber("Passport12345")
-                .username("kleineman85")
-                .password("Password1234")
-                .build();
+        Customer mockedCustomer = getCustomerWithCredentials("kleineman85", "Password1234");
 
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
 
@@ -118,21 +99,14 @@ class CustomerServiceTest {
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
 
-        assertEquals("Invalid password or username", result.getMessage());
+        assertEquals("Invalid username or password", result.getMessage());
     }
 
     @Test
     void givenInvalidPasswordWhenLoggingOnShouldThrowIllegalArgumentException() {
         // given
         Credentials credentials = new Credentials("kleineman85", "Password4321");
-        Customer mockedCustomer = Customer.builder()
-                .name("Joel")
-                .address("My Street 100, New York")
-                .dateOfBirth(LocalDate.of(1900, 1, 1))
-                .idDocumentNumber("Passport12345")
-                .username("kleineman85")
-                .password("Password1234")
-                .build();
+        Customer mockedCustomer = getCustomerWithCredentials("kleineman85", "Password1234");
 
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
 
@@ -142,7 +116,7 @@ class CustomerServiceTest {
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
 
-        assertEquals("Invalid password or username", result.getMessage());
+        assertEquals("Invalid username or password", result.getMessage());
 
     }
 
@@ -150,14 +124,7 @@ class CustomerServiceTest {
     void givenCorruptedPasswordWhenLoggingOnShouldThrowRuntimeException() {
         // given
         Credentials credentials = new Credentials("kleineman85", "Password1234");
-        Customer mockedCustomer = Customer.builder()
-                .name("Joel")
-                .address("My Street 100, New York")
-                .dateOfBirth(LocalDate.of(1900, 1, 1))
-                .idDocumentNumber("Passport12345")
-                .username("kleineman85")
-                .password(null)
-                .build();
+        Customer mockedCustomer = getCustomerWithCredentials("kleineman85", null);
 
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
 
@@ -168,6 +135,27 @@ class CustomerServiceTest {
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
 
         assertEquals("Unexpected error. Should never happen", result.getMessage());
+    }
+
+    private Customer getCustomer() {
+        return getCustomer("John Doe", "kleineman85");
+    }
+
+    private Customer getCustomer(String name, String username) {
+        return Customer.builder()
+                .name(name)
+                .address("Anonymous Street 100, New York")
+                .dateOfBirth(LocalDate.of(1999, 1, 31))
+                .idDocumentNumber("Passport12345")
+                .username(username)
+                .build();
+    }
+
+    private Customer getCustomerWithCredentials(String username, String password) {
+        Customer customer = getCustomer();
+        customer.setUsername(username);
+        customer.setPassword(password);
+        return customer;
     }
 
 }

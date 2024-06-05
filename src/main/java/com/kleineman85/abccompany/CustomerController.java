@@ -21,11 +21,11 @@ public class CustomerController {
         log.info("Received request register new customer");
 
         try {
-            Credentials credentials = customerService.registerCustomer(customer);
+            Credentials credentials = customerService.register(customer);
             return new ResponseEntity<>(credentials, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            log.info("Bad request: {}", e.getMessage());
+            log.info("Returning bad request. {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
@@ -44,11 +44,11 @@ public class CustomerController {
         log.info("Received request logon customer");
 
         try {
-            customerService.logon(credentials);
-            return new ResponseEntity<>("todo", HttpStatus.OK);
+            String token = customerService.logon(credentials);
+            return new ResponseEntity<>(token, HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
-            log.info("Bad request: {}", e.getMessage());
+            log.info("Returning bad request. {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {

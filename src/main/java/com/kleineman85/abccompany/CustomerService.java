@@ -15,7 +15,7 @@ import static com.kleineman85.abccompany.AbcUtilities.generatePassword;
 public class CustomerService {
     private final CustomerRepository customerRepository;
 
-    public Credentials registerCustomer(Customer newCustomer) {
+    public Credentials register(Customer newCustomer) {
         log.info("Start register new customer");
         validateUserName(newCustomer.getUsername());
         newCustomer.setPassword(generatePassword());
@@ -35,7 +35,8 @@ public class CustomerService {
             String expectedPassword = getPassword(customer.get());
             validatePassword(expectedPassword, credentials.password());
         } else {
-            throw new IllegalArgumentException("Invalid password or username");
+            log.info("Logon failed. Invalid username or password");
+            throw new IllegalArgumentException("Invalid username or password");
         }
         log.info("Logon successful. Returning token");
         return "dummyTokenReplaceWithJwt";
@@ -44,21 +45,25 @@ public class CustomerService {
 
     private void validateUserName(String username) {
         // todo replace with predicate and custom exception
-        if (customerRepository.findByUsername(username).isPresent())
+        if (customerRepository.findByUsername(username).isPresent()) {
+            log.info("Register customer failed. Username already exists");
             throw new IllegalArgumentException("Invalid username: username already exists");
+        }
     }
 
     private String getPassword(Customer customer) {
         if (customer.getPassword() != null) {
             return customer.getPassword();
         } else {
+            log.error("Logon failed. Unexpected error");
             throw new RuntimeException("Unexpected error. Should never happen");
         }
     }
 
     private void validatePassword(String expectedPassword, String actualPassword) {
         if (!expectedPassword.equals(actualPassword)) {
-            throw new IllegalArgumentException("Invalid password or username");
+            log.info("Logon failed. Invalid username or password");
+            throw new IllegalArgumentException("Invalid username or password");
         }
     }
 
