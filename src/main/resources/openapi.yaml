@@ -15,7 +15,7 @@ servers:
 paths:
   /register:
     post:
-      description: Let's a new user register and returns user credentials (username and password)
+      description: Let's a new customer register and returns credentials (username and password)
       requestBody:
         required: true
         content:
@@ -24,7 +24,7 @@ paths:
               $ref: '#/components/schemas/Customer'
       responses:
         '200':
-          description: Ok. Successfully registered a new user
+          description: Ok. Successfully registered a new customer
           content:
             application/json:
               schema:
@@ -45,7 +45,7 @@ paths:
                 example: "An unexpected error occured, for questions contact support@company.com"
   /logon:
     post:
-      description: Let's a registered user logon and returns a authorization token
+      description: Let's a registered customer logon and returns an authorization token
       requestBody:
         required: true
         content:

@@ -18,6 +18,7 @@ public class CustomerController {
 
     @PostMapping(path = "register")
     public ResponseEntity<Object> registerCustomer(@RequestBody Customer customer) {
+        // todo add MDC
         log.info("Received request register new customer");
 
         try {
