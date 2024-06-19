@@ -61,7 +61,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(newCustomer.getUsername())).thenReturn(Optional.of(existingCustomer));
 
         // when
-        AbcException result = assertThrows(AbcException.class, () -> testObject.register(newCustomer));
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.register(newCustomer));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -94,7 +94,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.empty());
 
         // when
-        AbcException result = assertThrows(AbcException.class, () -> testObject.logon(credentials));
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -111,7 +111,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
 
         // when
-        AbcException result = assertThrows(AbcException.class, () -> testObject.logon(credentials));
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
