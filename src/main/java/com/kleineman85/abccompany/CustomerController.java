@@ -25,13 +25,13 @@ public class CustomerController {
             Credentials credentials = customerService.register(customer);
             return new ResponseEntity<>(credentials, HttpStatus.OK);
 
-        } catch (IllegalArgumentException e) {
+        } catch (AbcException e) {
             log.info("Returning bad request. {}", e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new AbcErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             log.error("Exception: ", e);
-            return new ResponseEntity<>("An unexpected error occured, for questions contact support@company.com", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new AbcErrorResponse("An unexpected error occured, for questions contact support@company.com"), HttpStatus.INTERNAL_SERVER_ERROR);
 
         } finally {
             log.info("Finished request register new customer");
@@ -48,13 +48,13 @@ public class CustomerController {
             String token = customerService.logon(credentials);
             return new ResponseEntity<>(token, HttpStatus.OK);
 
-        } catch (IllegalArgumentException e) {
+        } catch (AbcException e) {
             log.info("Returning bad request. {}", e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new AbcErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             log.error("Exception: ", e);
-            return new ResponseEntity<>("An unexpected error occured, for questions contact support@company.com", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new AbcErrorResponse("An unexpected error occured, for questions contact support@company.com"), HttpStatus.INTERNAL_SERVER_ERROR);
 
         } finally {
             log.info("Finished request logon customer");

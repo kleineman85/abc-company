@@ -61,7 +61,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(newCustomer.getUsername())).thenReturn(Optional.of(existingCustomer));
 
         // when
-        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.register(newCustomer));
+        AbcException result = assertThrows(AbcException.class, () -> testObject.register(newCustomer));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -94,7 +94,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.empty());
 
         // when
-        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
+        AbcException result = assertThrows(AbcException.class, () -> testObject.logon(credentials));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -111,7 +111,7 @@ class CustomerServiceTest {
         when(mockedCustomerRepository.findByUsername(credentials.username())).thenReturn(Optional.of(mockedCustomer));
 
         // when
-        IllegalArgumentException result = assertThrows(IllegalArgumentException.class, () -> testObject.logon(credentials));
+        AbcException result = assertThrows(AbcException.class, () -> testObject.logon(credentials));
 
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
@@ -134,7 +134,7 @@ class CustomerServiceTest {
         // then
         verify(mockedCustomerRepository, times(1)).findByUsername(any());
 
-        assertEquals("Unexpected error. Should never happen", result.getMessage());
+        assertEquals("Unexpected error. No password in database for customer. Should never happen", result.getMessage());
     }
 
     private Customer getCustomer() {

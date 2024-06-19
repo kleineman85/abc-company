@@ -32,11 +32,11 @@ public class CustomerService {
         Optional<Customer> customer = customerRepository.findByUsername(credentials.username());
 
         if (customer.isPresent()) {
-            String expectedPassword = getPassword(customer.get());
-            validatePassword(expectedPassword, credentials.password());
+            String expectedPasswordFromDb = getPassword(customer.get());
+            validatePassword(expectedPasswordFromDb, credentials.password());
         } else {
             log.info("Logon failed. Invalid username or password");
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new AbcException("Invalid username or password");
         }
         log.info("Logon successful. Returning token");
         return "dummyTokenReplaceWithJwt";
@@ -47,7 +47,7 @@ public class CustomerService {
         // todo replace with predicate and custom exception
         if (customerRepository.findByUsername(username).isPresent()) {
             log.info("Register customer failed. Username already exists");
-            throw new IllegalArgumentException("Invalid username: username already exists");
+            throw new AbcException("Invalid username: username already exists");
         }
     }
 
@@ -55,15 +55,15 @@ public class CustomerService {
         if (customer.getPassword() != null) {
             return customer.getPassword();
         } else {
-            log.error("Logon failed. Unexpected error");
-            throw new RuntimeException("Unexpected error. Should never happen");
+            log.error("Unexpected error. No password in database for customer. Should never happen");
+            throw new RuntimeException("Unexpected error. No password in database for customer. Should never happen");
         }
     }
 
     private void validatePassword(String expectedPassword, String actualPassword) {
         if (!expectedPassword.equals(actualPassword)) {
             log.info("Logon failed. Invalid username or password");
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new AbcException("Invalid username or password");
         }
     }
 
